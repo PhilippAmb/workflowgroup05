@@ -1,4 +1,4 @@
-package org.camunda.bpmn.workflow.tasks;
+package wfApp.tasks;
 
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.JavaDelegate;
@@ -29,6 +29,23 @@ public class ProcessOrder implements JavaDelegate {
         if (amount == null || amount < 1 || amount > 1000) {
             throw new IllegalArgumentException("The amount has to be between 1 and 1000");
         }
+
+        if(product.equals("p1")) {
+            execution.setVariable("price", 1000);
+        }
+        else if(product.equals("p2")) {
+            execution.setVariable("price", 299);
+        }
+        else if(product.equals("p3")) {
+            execution.setVariable("price", 15);
+        }
+        else if(product.equals("p4")) {
+            execution.setVariable("price", 735);
+        }
+        else if(product.equals("p5")) {
+            execution.setVariable("price", 3900);
+        }
+
 
         product = product.trim();
         email = email.trim();

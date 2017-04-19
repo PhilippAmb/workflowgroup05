@@ -1,4 +1,4 @@
-package org.camunda.bpmn.workflow.tasks;
+package wfApp.tasks;
 
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.JavaDelegate;
