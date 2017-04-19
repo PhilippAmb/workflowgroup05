@@ -7,6 +7,7 @@ import javax.activation.DataHandler;
 import javax.activation.DataSource;
 import javax.activation.FileDataSource;
 import javax.mail.*;
+import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import java.util.Properties;
@@ -25,66 +26,71 @@ public class CreateDocuments implements JavaDelegate {
             refillDuration = (Integer) execution.getVariable("refillDuration");
         }
 
+        String body = "";
 
-        String mailText = "";
-
-        mailText += "Dear " + name +"!\n";
+        body += "Dear " + name +"!\n";
         if(refillDuration > 0) {
-            mailText += "Your order will be delivered in " + refillDuration + " days.\n";
+            body += "Your order will be delivered in " + refillDuration + " days.\n";
         }
+        
         else {
-            mailText += "Your order will be delivered today.\n";
+            body += "Your order will be delivered within the next hours.\n";
         }
-        long orderNr = (long) Math.round(Math.random()*10000);
-        mailText += "Your order number is: " + orderNr + "\n";
-        mailText += "\n\nThank you & good night!";
-
+        
+        long orderNr_p1 = (long) Math.round(Math.random()*10000);
+        long orderNr_p2 = (long) Math.round(Math.random()*1000000);
+        
+        String orderNr = orderNr_p1 + "-" + orderNr_p2;
+        
+        String subject = "Your Order: " + orderNr;
+        
+        body += "Your order number is: " + orderNr  + "\n";
+        body += "\n\nThank you & good night!";
 
         // Recipient's email ID needs to be mentioned.
         String to = (String) execution.getVariable("mail");
 
         // Sender's email ID needs to be mentioned
-        String from = "workflow@tuwien.at";
+        String from = "worflow.gr5";
+        
+        String theword = "***********";
 
-        // Assuming you are sending email from localhost
-        String host = "localhost";
-
-        // Get system properties
-        Properties properties = System.getProperties();
-
-        // Setup mail server
-        properties.setProperty("mail.smtp.host", host);
-
-        // Get the default Session object.
-        Session session = Session.getDefaultInstance(properties);
-
-        try {
-            // Create a default MimeMessage object.
-            MimeMessage message = new MimeMessage(session);
-
-            // Set From: header field of the header.
-            message.setFrom(new InternetAddress(from));
-
-            // Set To: header field of the header.
-            message.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
-
-            // Set Subject: header field
-            message.setSubject("Thank you for your Order, " + name + "!");
-
-            // Now set the actual message
-            message.setText(mailText);
-
-
-            // Send message
-            Transport.send(message);
-            System.out.println("Sent message successfull.");
-        }catch (MessagingException mex) {
-            //mex.printStackTrace();
-        	System.out.println("Failed to send eMail. Gute Nacht!");
-        }
-
-
-
+        CreateDocuments.sendFromGMail(from, theword, to, subject, body);
     }
 
+    private static void sendFromGMail(String from, String pass, String to, String subject, String body) {
+        Properties props = System.getProperties();
+        String host = "smtp.gmail.com";
+        props.put("mail.smtp.starttls.enable", "true");
+        props.put("mail.smtp.host", host);
+        props.put("mail.smtp.user", from);
+        props.put("mail.smtp.password", pass);
+        props.put("mail.smtp.port", "587");
+        props.put("mail.smtp.auth", "true");
+
+        Session session = Session.getDefaultInstance(props);
+        MimeMessage message = new MimeMessage(session);
+
+        try {
+            message.setFrom(new InternetAddress(from));
+            InternetAddress toAddress = new InternetAddress();
+
+            // To get the array of addresses
+
+            toAddress = new InternetAddress(to);
+            message.addRecipient(Message.RecipientType.TO, toAddress);
+
+            message.setSubject(subject);
+            message.setText(body);
+            Transport transport = session.getTransport("smtp");
+            transport.connect(host, from, pass);
+            transport.sendMessage(message, message.getAllRecipients());
+            transport.close();
+        } catch (AddressException ae) {
+            ae.printStackTrace();
+        }
+        catch (Exception me) {
+            me.printStackTrace();
+        }
+    }
 }
