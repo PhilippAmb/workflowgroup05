@@ -1,4 +1,4 @@
-package wfApp.tasks;
+package org.camunda.bpmn.workflow.tasks;
 
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.JavaDelegate;
@@ -79,7 +79,8 @@ public class CreateDocuments implements JavaDelegate {
             Transport.send(message);
             System.out.println("Sent message successfull.");
         }catch (MessagingException mex) {
-            System.out.println("Send email failed.");
+            //mex.printStackTrace();
+        	System.out.println("Failed to send eMail. Gute Nacht!");
         }
 
 
